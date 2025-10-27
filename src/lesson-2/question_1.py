@@ -21,6 +21,13 @@ for i in range(5):
 
 print(diagonal_sum)
 
+# calculate the anti-diagonal sum as well
+anti_diagonal_sum = 0
+for i in range(5):
+    anti_diagonal_sum += array_5x5[i, 4 - i]
+
+print("Anti-diagonal sum:", anti_diagonal_sum)
+
 # 2. Choose any three functions to apply to this array
 # Function 1: Calculate the mean of the array
 mean_value = np.mean(array_5x5)
