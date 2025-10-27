@@ -20,5 +20,5 @@ uv sync
 ## 🚀 Run Examples
 From the project root directory, run any of the example scripts located in the `examples/` folder. For instance:
 ```bash
-    uv run lesson-1/question-1.py
+    uv run lesson-1/question_1.py
 ```
