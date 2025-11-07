@@ -80,3 +80,7 @@ most_impactful_attribute = mpg_correlations.abs().idxmax()
 impact_value = mpg_correlations[most_impactful_attribute]
 print("\nAttribute with the most impact on mpg:", most_impactful_attribute)
 print("Correlation value:", impact_value)
+
+mpg_corr = data.drop(columns=["model"]).corr()['mpg'].sort_values(ascending=False)
+print("\nCorrelation of features with MPG:")
+print(mpg_corr)
