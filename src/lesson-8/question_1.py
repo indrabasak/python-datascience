@@ -37,6 +37,8 @@ from sklearn import metrics
 from sklearn import linear_model
 from sklearn.naive_bayes import GaussianNB
 from sklearn import tree
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neural_network import MLPClassifier
 
 # ===============================================
 # 1. Perform Data exploratory analysis on the data.
@@ -93,7 +95,8 @@ lr_test_pred = lr_fit.predict(X_test)
 print("Training Set Evaluation:")
 print("Accuracy:", metrics.accuracy_score(y_train, lr_train_pred))
 print("Testing Set Evaluation:")
-print("Accuracy:", metrics.accuracy_score(y_test, lr_test_pred))
+lr_accuracy = metrics.accuracy_score(y_test, lr_test_pred)
+print("Accuracy:", lr_accuracy)
 
 train_cm = metrics.confusion_matrix(y_train, lr_train_pred)
 print("Training Confusion Matrix:")
@@ -123,7 +126,8 @@ NB_test_pred = NB_fit.predict(X_test)
 print("Naïve Bayes Training Set Evaluation:")
 print("Accuracy:", metrics.accuracy_score(y_train, NB_train_pred))
 print("Naïve Bayes Testing Set Evaluation:")
-print("Accuracy:", metrics.accuracy_score(y_test, NB_test_pred))
+nb_accuracy = metrics.accuracy_score(y_test, NB_test_pred)
+print("Accuracy:", nb_accuracy)
 
 print("Naïve Bayes Training Confusion Matrix:")
 train_cm = metrics.confusion_matrix(y_train, NB_train_pred)
@@ -144,15 +148,70 @@ DT_fit = DT.fit(X_train, y_train)
 # Model Evaluation
 DT_pred = DT_fit.predict(X_test)
 print("Decision Tree Testing Set Evaluation:")
-print("Accuracy:", metrics.accuracy_score(y_test, DT_pred))
+dt_accuracy = metrics.accuracy_score(y_test, DT_pred)
+print("Accuracy:", dt_accuracy)
 class_report = metrics.classification_report(y_test, DT_pred)
 print("Classification Report:\n", class_report)
 
 dt_importance = DT.feature_importances_
-pd_df = pd.DataFrame({'variable': breast_cancer.columns[:9], 'importance': dt_importance})
+importance_df = pd.DataFrame({'variable': breast_cancer.columns[:9], 'importance': dt_importance})
 print("Decision Tree Feature Importance:")
-print(pd_df.sort_values(by='importance', ascending=False))
+print(importance_df.sort_values(by='importance', ascending=False))
 
 # ===============================================
 # 5. Build Neural network model to predict Labels variable.
 # ===============================================
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("First 3 rows of scaled training data:")
+print(X_test_scaled[:3])
+
+print("First 3 rows of scaled testing data:")
+print(X_test_scaled[:3])
+
+NN = MLPClassifier(solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(10, 4), random_state=1)
+NN.fit(X_train_scaled, y_train)
+
+NN_pred = NN.predict(X_test_scaled)
+print("Neural Network Testing Set Evaluation:")
+nn_accuracy = metrics.accuracy_score(y_test, NN_pred)
+print("Accuracy:", nn_accuracy)
+
+# ==============================================
+# 6. Which model is the best? Which variable is the most important one?
+# ==============================================
+print("Model Comparison on Testing Set:")
+print(f"Logistic Regression Accuracy: {lr_accuracy:.4f}")
+print(f"Naïve Bayes Accuracy: {nb_accuracy:.4f}")
+print(f"Decision Tree Accuracy: {dt_accuracy:.4f}")
+print(f"Neural Network Accuracy: {nn_accuracy:.4f}")
+
+print("The best model is the one with the highest accuracy on the testing set.")
+# The max function returns the largest item in an iterable or the largest of
+# two or more arguments. You can provide a key parameter,
+# which is a function that specifies a value to use for comparison.
+# For example, in your code, max is used to find the model name with the highest
+# accuracy by comparing values from a dictionary.
+best_model = max(
+    {
+        "Logistic Regression": lr_accuracy,
+        "Naïve Bayes": nb_accuracy,
+        "Decision Tree": dt_accuracy,
+        "Neural Network": nn_accuracy,
+    },
+    key=lambda k: {
+        "Logistic Regression": lr_accuracy,
+        "Naïve Bayes": nb_accuracy,
+        "Decision Tree": dt_accuracy,
+        "Neural Network": nn_accuracy,
+    }[k],
+)
+print(f"The best model is: {best_model}")
+
+# Identify the most important variable from the Decision Tree model
+importance_df = pd.DataFrame({'variable': breast_cancer.columns[:9], 'importance': dt_importance})
+sorted_importance = importance_df.sort_values(by='importance', ascending=False)
+most_important_variable = sorted_importance.iloc[0]
+print(f"The most important variable is: {most_important_variable['variable']} with importance {most_important_variable['importance']:.4f}")

@@ -48,6 +48,8 @@ from sklearn import metrics
 from sklearn import linear_model
 from sklearn.naive_bayes import GaussianNB
 from sklearn import tree
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neural_network import MLPClassifier
 
 # ===============================================
 # Data Preparation
@@ -123,10 +125,7 @@ plt.xlabel("Predicted Label")
 plt.show()
 
 # ===============================================
-# Lesson 8.2
-# ===============================================
-# Naïve Bayes
-#
+# Lesson 8.2: Naïve Bayes
 # The second model we introduce is Naïve Bayes, and we still use the glass data.
 # Once you import the model, the rest is similar to how to build and evaluate the
 # Logistic Regression Model
@@ -176,11 +175,10 @@ np.set_printoptions(precision=2)
 NB.predict_proba(X_test[:5])
 
 # ===============================================
-# Lesson 8.3
-# ===============================================
-# Decision Tree
+# Lesson 8.3: Decision Tree
 # There are various decision tree algorithms such as ID3, C4.5, C5.0, and CART.
 # scikit-learn provides an optimized version of the CART model.
+# ===============================================
 DT = tree.DecisionTreeClassifier(max_depth=10, min_samples_split=5)
 DT_fit = DT.fit(X_train, y_train)
 
@@ -201,3 +199,32 @@ dt_importance = DT.feature_importances_
 pd_df = pd.DataFrame({'variable': glass.columns[:9], 'importance': dt_importance})
 print("Decision Tree Feature Importance:")
 print(pd_df.sort_values(by='importance', ascending=False))
+
+# ==============================================
+# Lesson 8.4: Neural Network
+# For Neural network models, you need to preprocess the data.
+# Since neural networks prefer the data with the range [0, 1], first, we are going to rescale the data
+# with MinMaxScaler
+# ==============================================
+# Data Preprocessing
+# The way to process the data is similar to build models. First, we create a
+# MinMaxScaler class. You can fit and transform training data at the same time with
+# fit_transform function. With information (minimums and maximums) learned from training data,
+# you can transform/rescale the test data. Figure 8.26 shows the
+# first 3 rows of training and test datasets:
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("First 3 rows of scaled training data:")
+print(X_test_scaled[:3])
+
+print("First 3 rows of scaled testing data:")
+print(X_test_scaled[:3])
+
+NN = MLPClassifier(solver="lbfgs", alpha=1e-5, hidden_layer_sizes=(10, 4), random_state=1)
+NN.fit(X_train_scaled, y_train)
+
+NN_pred = NN.predict(X_test_scaled)
+print("Neural Network Testing Set Evaluation:")
+print("Accuracy:", metrics.accuracy_score(y_test, NN_pred))
