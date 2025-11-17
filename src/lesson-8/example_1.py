@@ -47,6 +47,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn import linear_model
 from sklearn.naive_bayes import GaussianNB
+from sklearn import tree
 
 # ===============================================
 # Data Preparation
@@ -173,3 +174,30 @@ print(test_cm)
 # The output is a 2D array where each row corresponds to a sample and each column to a class.
 np.set_printoptions(precision=2)
 NB.predict_proba(X_test[:5])
+
+# ===============================================
+# Lesson 8.3
+# ===============================================
+# Decision Tree
+# There are various decision tree algorithms such as ID3, C4.5, C5.0, and CART.
+# scikit-learn provides an optimized version of the CART model.
+DT = tree.DecisionTreeClassifier(max_depth=10, min_samples_split=5)
+DT_fit = DT.fit(X_train, y_train)
+
+# Model Evaluation
+# Next, we predict the glass type and evaluate the performance of the test set.
+# This time we use a classification report which shows the model performance on
+# each type and the overall performance
+DT_pred = DT_fit.predict(X_test)
+print("Decision Tree Testing Set Evaluation:")
+print("Accuracy:", metrics.accuracy_score(y_test, DT_pred))
+class_report = metrics.classification_report(y_test, DT_pred)
+print("Classification Report:\n", class_report)
+
+# Decision tree model also provides an attribute to return the feature importance.
+# Since the method returns an array, we create a DataFrame to show both the
+# variable names and importance factors
+dt_importance = DT.feature_importances_
+pd_df = pd.DataFrame({'variable': glass.columns[:9], 'importance': dt_importance})
+print("Decision Tree Feature Importance:")
+print(pd_df.sort_values(by='importance', ascending=False))

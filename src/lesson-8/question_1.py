@@ -36,6 +36,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn import linear_model
 from sklearn.naive_bayes import GaussianNB
+from sklearn import tree
 
 # ===============================================
 # 1. Perform Data exploratory analysis on the data.
@@ -133,3 +134,25 @@ print(test_cm)
 
 np.set_printoptions(precision=2)
 NB.predict_proba(X_test[:5])
+
+# ===============================================
+# 4. Build the Decision tree model to predict Labels variable.
+# ===============================================
+DT = tree.DecisionTreeClassifier(max_depth=10, min_samples_split=5)
+DT_fit = DT.fit(X_train, y_train)
+
+# Model Evaluation
+DT_pred = DT_fit.predict(X_test)
+print("Decision Tree Testing Set Evaluation:")
+print("Accuracy:", metrics.accuracy_score(y_test, DT_pred))
+class_report = metrics.classification_report(y_test, DT_pred)
+print("Classification Report:\n", class_report)
+
+dt_importance = DT.feature_importances_
+pd_df = pd.DataFrame({'variable': breast_cancer.columns[:9], 'importance': dt_importance})
+print("Decision Tree Feature Importance:")
+print(pd_df.sort_values(by='importance', ascending=False))
+
+# ===============================================
+# 5. Build Neural network model to predict Labels variable.
+# ===============================================
